@@ -55,10 +55,7 @@ function toast(message) {
     t.classList.add("show");
 
     clearTimeout(tt);
-
-    tt = setTimeout(() => {
-        t.classList.remove("show");
-    }, 1800);
+    tt = setTimeout(() => t.classList.remove("show"), 1800);
 }
 
 /* ===================== SCRIPTS ===================== */
@@ -99,12 +96,9 @@ function renderScripts() {
                 <div class="top">
                     <span class="tag">${esc(s.game)}</span>
                 </div>
-
                 <h3>${esc(s.name)}</h3>
                 <p>${esc(s.desc)}</p>
-
                 <div class="code">${esc(s.code)}</div>
-
                 <button class="btn sm" data-i="${i}">
                     Copy script
                 </button>
@@ -142,14 +136,11 @@ if ($("#count")) {
     $("#count").textContent = SCRIPTS.length;
 }
 
-/* ===================== DISCORD OWNERS ===================== */
+/* ===================== DISCORD HELPERS ===================== */
 
 const fetchJ = async (url, ms = 10000) => {
     const controller = new AbortController();
-
-    const timer = setTimeout(() => {
-        controller.abort();
-    }, ms);
+    const timer = setTimeout(() => controller.abort(), ms);
 
     try {
         const response = await fetch(url, {
@@ -175,28 +166,6 @@ function defAv(id) {
     }
 }
 
-function getAvatar(id, hash) {
-    if (!hash) return defAv(id);
-
-    if (hash.startsWith("http")) return hash;
-
-    const extension = hash.startsWith("a_") ? "gif" : "png";
-
-    return `https://cdn.discordapp.com/avatars/${id}/${hash}.${extension}?size=256`;
-}
-
-function normalizeColor(color) {
-    if (typeof color === "number") {
-        return "#" + color.toString(16).padStart(6, "0");
-    }
-
-    if (typeof color === "string" && color) {
-        return color.startsWith("#") ? color : "#" + color;
-    }
-
-    return "";
-}
-
 /* ===================== GRUX API ===================== */
 
 async function getOwner(o) {
@@ -216,60 +185,47 @@ async function getOwner(o) {
             `https://grux.audibert.dev/user/${encodeURIComponent(o.id)}`
         );
 
-        const data = result.data || result;
-        const profile = data.profile || {};
-        const user = data.user || profile;
+        if (!result.success || !result.data?.profile) {
+            throw new Error("Invalid Grux API response");
+        }
+
+        const data = result.data;
+        const p = data.profile;
 
         d.name =
-            profile.display_name ||
-            user.global_name ||
-            user.display_name ||
-            user.username ||
+            p.display_name ||
+            p.username ||
             d.name;
 
-        d.username =
-            profile.username ||
-            user.username ||
-            "";
+        d.username = p.username || "";
 
         d.avatar =
-            profile.avatar_url ||
-            profile.avatar ||
-            user.avatar_url ||
-            getAvatar(o.id, user.avatar);
+            p.avatar_image ||
+            defAv(o.id);
 
         d.banner =
-            profile.banner_url ||
-            profile.banner ||
-            user.banner_url ||
+            p.banner_image ||
             "";
 
-        d.color = normalizeColor(
-            profile.accent_color ||
-            user.accent_color ||
-            ""
-        );
-
         d.bio =
-            profile.bio ||
+            p.bio ||
             o.fallback?.bio ||
             "";
 
         d.status =
-            data.discord_status ||
             data.status ||
             "offline";
 
-        const activities = data.activities || [];
+        const activity = data.activity;
 
-        const custom = activities.find(a => a.type === 4);
-
-        if (custom?.state) {
-            d.activity = custom.state;
+        if (Array.isArray(activity) && activity.length) {
+            d.activity = activity[0].name || "";
+        } else if (activity && typeof activity === "object") {
+            d.activity = activity.name || "";
         }
 
     } catch (error) {
-        console.warn(`Grux API failed for ${o.id}:`, error);
+        console.error(`Grux API error for ${o.id}:`, error);
     }
 
     return d;
@@ -338,7 +294,7 @@ async function loadTeam() {
     const box = $("#team");
 
     if (!box) {
-        console.error("Team container #team was not found.");
+        console.error("Missing #team element");
         return;
     }
 
@@ -357,35 +313,32 @@ async function loadTeam() {
         </div>
     `).join("");
 
-    await Promise.all(
-        OWNERS.map(async (o, i) => {
-            const d = await getOwner(o);
-            const el = document.getElementById(`owner-${i}`);
+    await Promise.all(OWNERS.map(async (o, i) => {
+        const d = await getOwner(o);
+        const el = document.getElementById(`owner-${i}`);
 
-            if (!el) return;
+        if (!el) return;
 
-            el.innerHTML = card(o, d);
+        el.innerHTML = card(o, d);
 
-            const profile = el.firstElementChild;
+        const profile = el.firstElementChild;
 
-            if (profile) {
-                profile.classList.add("in");
-            }
-        })
-    );
+        if (profile) {
+            profile.classList.add("in");
+        }
+    }));
 }
 
 /* ===================== EFFECTS ===================== */
 
 document.addEventListener("pointermove", e => {
     const c = e.target.closest(".card, .pcard");
-
     if (!c) return;
 
     const r = c.getBoundingClientRect();
 
-    c.style.setProperty("--mx", e.clientX - r.left + "px");
-    c.style.setProperty("--my", e.clientY - r.top + "px");
+    c.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    c.style.setProperty("--my", `${e.clientY - r.top}px`);
 });
 
 const io = new IntersectionObserver(entries => {
@@ -405,7 +358,7 @@ function observe() {
     });
 }
 
-/* ===================== INITIALIZE ===================== */
+/* ===================== INITIALIZATION ===================== */
 
 function initialize() {
     renderScripts();
