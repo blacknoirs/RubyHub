@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Script Hub: free Roblox scripts</title>
+<meta name="description" content="Free Roblox scripts you can copy and run in your executor. Independent project, not affiliated with Roblox.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="index.html" data-site-name>Script Hub</a>
+    <nav><a href="#scripts">Scripts</a><a href="#how">How to use</a><a data-discord href="#">Discord</a></nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Pick a script. Copy one line. Run it.</h1>
+      <p>Free Roblox scripts, kept up to date in one place. No account, no ads, no downloads.</p>
+      <p><a class="btn" href="#scripts">Browse scripts</a></p>
+    </div>
+    <div class="term" aria-label="Example script line">
+      <div class="bar"><span>Paste this into your executor</span><button class="btn" id="hero-copy" type="button">Copy</button></div>
+      <pre id="hero-code"></pre>
+    </div>
+  </div>
+
+  <section id="scripts">
+    <h2>Scripts</h2>
+    <div class="tools"><input id="q" type="search" placeholder="Search by name, game or tag" aria-label="Search scripts"></div>
+    <div id="grid" class="grid"></div>
+  </section>
+
+  <section id="how">
+    <h2>How to use a script</h2>
+    <div class="steps">
+      <div><h3>Copy</h3><p>Press <b>Copy script</b> on the script you want.</p></div>
+      <div><h3>Paste</h3><p>Open your executor while in the game and paste the line into it.</p></div>
+      <div><h3>Run</h3><p>Press Execute. Settings and keybinds are listed under each script.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="notice"><b>Read before you use anything here.</b> Using scripts can break Roblox's Terms of Use and may get your account or devices banned. You use everything on this site at your own risk. This site is independent and is not made by, endorsed by, or connected to Roblox Corporation. See the <a href="terms.html">Terms</a>.</div>
+  </section>
+
+  <footer>
+    <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a data-discord href="#">Discord</a>
+    <p>&copy; <span id="y"></span> <span data-site-name>Script Hub</span>. Roblox is a trademark of Roblox Corporation, used here only to describe what the scripts work with.</p>
+  </footer>
+</div>
+<script>document.getElementById("y").textContent=new Date().getFullYear();</script>
+<script src="scripts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
