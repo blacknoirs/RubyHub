@@ -96,9 +96,12 @@ function renderScripts() {
                 <div class="top">
                     <span class="tag">${esc(s.game)}</span>
                 </div>
+
                 <h3>${esc(s.name)}</h3>
                 <p>${esc(s.desc)}</p>
+
                 <div class="code">${esc(s.code)}</div>
+
                 <button class="btn sm" data-i="${i}">
                     Copy script
                 </button>
@@ -136,11 +139,11 @@ if ($("#count")) {
     $("#count").textContent = SCRIPTS.length;
 }
 
-/* ===================== DISCORD HELPERS ===================== */
+/* ===================== API HELPERS ===================== */
 
-const fetchJ = async (url, ms = 10000) => {
+async function fetchJ(url) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
+    const timer = setTimeout(() => controller.abort(), 10000);
 
     try {
         const response = await fetch(url, {
@@ -155,7 +158,7 @@ const fetchJ = async (url, ms = 10000) => {
     } finally {
         clearTimeout(timer);
     }
-};
+}
 
 function defAv(id) {
     try {
@@ -166,11 +169,23 @@ function defAv(id) {
     }
 }
 
-/* ===================== GRUX API ===================== */
+function normalizeColor(color) {
+    if (typeof color === "number") {
+        return "#" + color.toString(16).padStart(6, "0");
+    }
+
+    if (typeof color === "string" && color) {
+        return color.startsWith("#") ? color : "#" + color;
+    }
+
+    return "";
+}
+
+/* ===================== DISCORD LOOKUP API ===================== */
 
 async function getOwner(o) {
     const d = {
-        name: "Discord User",
+        name: "Profile unavailable",
         username: "",
         avatar: defAv(o.id),
         banner: "",
@@ -182,50 +197,44 @@ async function getOwner(o) {
 
     try {
         const result = await fetchJ(
-            `https://grux.audibert.dev/user/${encodeURIComponent(o.id)}`
+            `https://discord-lookup.lookupbotdc.workers.dev/search/${encodeURIComponent(o.id)}`
         );
 
-        if (!result.success || !result.data?.profile) {
-            throw new Error("Invalid Grux API response");
+        if (!result.user) {
+            throw new Error("User data missing from API response");
         }
 
-        const data = result.data;
-        const p = data.profile;
+        const user = result.user;
 
         d.name =
-            p.display_name ||
-            p.username ||
-            d.name;
+            user.global_name ||
+            user.username ||
+            "Discord User";
 
-        d.username = p.username || "";
+        d.username = user.username || "";
 
         d.avatar =
-            p.avatar_image ||
-            defAv(o.id);
+            result.avatar_url ||
+            (user.avatar
+                ? `https://cdn.discordapp.com/avatars/${o.id}/${user.avatar}.${user.avatar.startsWith("a_") ? "gif" : "png"}?size=256`
+                : defAv(o.id));
 
         d.banner =
-            p.banner_image ||
-            "";
+            result.banner_url ||
+            (user.banner
+                ? `https://cdn.discordapp.com/banners/${o.id}/${user.banner}.${user.banner.startsWith("a_") ? "gif" : "png"}?size=1024`
+                : "");
 
-        d.bio =
-            p.bio ||
-            o.fallback?.bio ||
-            "";
+        d.color = normalizeColor(
+            user.accent_color ||
+            user.banner_color
+        );
 
-        d.status =
-            data.status ||
-            "offline";
-
-        const activity = data.activity;
-
-        if (Array.isArray(activity) && activity.length) {
-            d.activity = activity[0].name || "";
-        } else if (activity && typeof activity === "object") {
-            d.activity = activity.name || "";
-        }
+        console.log("Loaded Discord profile:", o.id, user);
 
     } catch (error) {
-        console.error(`Grux API error for ${o.id}:`, error);
+        console.error(`Discord lookup failed for ${o.id}:`, error);
+        d.name = "Profile unavailable";
     }
 
     return d;
@@ -235,7 +244,7 @@ async function getOwner(o) {
 
 function card(o, d) {
     const bg = d.banner
-        ? `background-image:url('${esc(d.banner)}')`
+        ? `background-image:url('${esc(d.banner)}');background-size:cover;background-position:center`
         : d.color
             ? `background:${esc(d.color)}`
             : "";
@@ -245,7 +254,6 @@ function card(o, d) {
             <div class="banner" style="${bg}"></div>
 
             <div class="pbody">
-
                 <div class="avwrap">
                     <img
                         src="${esc(d.avatar)}"
@@ -282,7 +290,6 @@ function card(o, d) {
                     rel="noopener noreferrer">
                     View on Discord
                 </a>
-
             </div>
         </article>
     `;
@@ -302,8 +309,8 @@ async function loadTeam() {
         <div id="owner-${i}">
             ${card(o, {
                 name: "Loading...",
-                username: "",
                 avatar: defAv(o.id),
+                username: "",
                 banner: "",
                 color: "",
                 bio: o.fallback?.bio || "",
@@ -358,7 +365,7 @@ function observe() {
     });
 }
 
-/* ===================== INITIALIZATION ===================== */
+/* ===================== INITIALIZE ===================== */
 
 function initialize() {
     renderScripts();
