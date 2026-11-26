@@ -1,56 +1,26 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ruby Hub</title>
-<meta name="description" content="Ruby Hub: Roblox scripts you can copy and run. Independent, not affiliated with Roblox.">
-<meta name="theme-color" content="#150b0e">
-<link rel="icon" type="image/svg+xml" href="logo.svg">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <a class="brand" href="index.html"><img src="logo.svg" alt="">Ruby Hub</a>
-    <nav><a href="#scripts">Scripts</a><a href="#guide">Guide</a><a data-discord href="#">Discord</a></nav>
-  </header>
-
-  <div class="hero">
-    <img src="logo.svg" alt="Ruby Hub logo">
-    <div>
-      <h1>Ruby Hub</h1>
-      <p>Roblox scripts you run in your executor. Copy one line, paste it, done.</p>
-      <div id="status"></div>
-    </div>
-  </div>
-
-  <section id="scripts">
-    <div class="head"><h2>Scripts</h2><span class="count" id="count"></span></div>
-    <input id="find" type="search" placeholder="Search scripts" aria-label="Search scripts">
-    <div id="rows"></div>
-  </section>
-
-  <section class="guide" id="guide">
-    <h2>How to run a script</h2>
-    <ol>
-      <li>Open Roblox and join the game the script is for.</li>
-      <li>Open your executor and attach it.</li>
-      <li>Press <b>Copy</b> on the script here, paste it into the executor, and press Execute.</li>
-    </ol>
-  </section>
-
-  <section>
-    <p class="warn"><b>Read this.</b> These scripts are exploits. Using them breaks the Roblox Terms of Use and can get your account or device banned. Ruby Hub can't prevent that or undo it, and you run everything at your own risk. See the <a href="terms.html">Terms</a> and the <a href="privacy.html">Privacy Policy</a>, which explains what we log.</p>
-  </section>
-
-  <footer>
-    <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a data-discord href="#">Discord</a>
-    <p>&copy; <span id="year"></span> Ruby Hub. Not affiliated with, endorsed by, or connected to Roblox Corporation.</p>
-  </footer>
-</div>
-<script src="scripts.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%23e0115f%27/%3E%3Ctext x=%2750%27 y=%2772%27 font-size=%2770%27 font-weight=%27900%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Arial%27%3ER%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="style.css"><title>Ruby Hub – Roblox Scripts</title><meta name="description" content="Ruby Hub: free Roblox scripts, updated regularly."></head><body>
+<nav><div class="wrap"><a class="brand" href="index.html"><span class="logo">R</span>Ruby Hub</a><ul><li><a href="index.html#scripts">Scripts</a></li><li><a href="terms.html">Terms</a></li><li><a href="privacy.html">Privacy</a></li></ul></div></nav>
+<header class="hero wrap"><h1>Welcome to <span>Ruby Hub</span></h1><p>Free Roblox scripts, easy to copy and run. Browse, search, and grab what you need.</p><a class="btn" href="#scripts">Browse Scripts</a> <a class="btn ghost" href="terms.html">Read the Terms</a></header>
+<main class="wrap" id="scripts">
+<div class="notice"><b>Heads up:</b> Using third-party scripts in Roblox can violate Roblox’s Terms of Use and may lead to account actions, including bans. Everything here is provided as-is, at your own risk. By using this site you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</div>
+<h2 class="sec">Scripts</h2>
+<div class="tools"><input id="q" type="search" placeholder="Search scripts…" aria-label="Search scripts"></div>
+<div class="grid" id="grid"></div>
+</main>
+<footer><div class="wrap"><p><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="index.html#scripts">Scripts</a></p><p>Contact: Discord <b>render.xyz</b></p><p style="margin-top:8px">© <span id="y"></span> Ruby Hub. Not affiliated with, endorsed by, or sponsored by Roblox Corporation. “Roblox” is a trademark of Roblox Corporation.</p></div></footer><script>document.getElementById("y").textContent=new Date().getFullYear()</script>
+<script>
+// ✏️ EDIT THIS LIST to add your scripts. One object per script.
+const SCRIPTS=[
+{name:"Example Script 1",game:"Universal",desc:"Replace this with a description of what your script does.",code:'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/script1.lua"))()'},
+{name:"Example Script 2",game:"Your Game Name",desc:"Another placeholder. Swap in your real loadstring or paste the script itself.",code:'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/script2.lua"))()'}
+];
+const grid=document.getElementById("grid"),q=document.getElementById("q");
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function render(){const t=q.value.trim().toLowerCase();
+const list=SCRIPTS.map((s,i)=>({s,i})).filter(({s})=>(s.name+s.game+s.desc).toLowerCase().includes(t));
+grid.innerHTML=list.length?list.map(({s,i})=>'<article class="card"><span class="tag">'+esc(s.game)+'</span><h3>'+esc(s.name)+'</h3><p>'+esc(s.desc)+'</p><div class="code">'+esc(s.code)+'</div><button class="btn" data-i="'+i+'">Copy Script</button></article>').join(""):'<p class="empty">No scripts found.</p>'}
+grid.addEventListener("click",async e=>{const b=e.target.closest("button[data-i]");if(!b)return;
+try{await navigator.clipboard.writeText(SCRIPTS[b.dataset.i].code);b.textContent="Copied ✓"}catch(_){b.textContent="Copy failed – select the text manually"}
+setTimeout(()=>b.textContent="Copy Script",1800)});
+q.addEventListener("input",render);render();
+</script></body></html>
