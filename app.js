@@ -20,16 +20,10 @@ const OWNERS = [
 
 const SCRIPTS = [
     {
-        name: "Example Script 1",
-        game: "Universal",
-        desc: "Replace this with what your script does.",
-        code: 'loadstring(game:HttpGet("https://YOUR-HOST/script1.lua"))()'
-    },
-    {
-        name: "Example Script 2",
-        game: "Your Game",
-        desc: "Another placeholder. Swap in your real loadstring.",
-        code: 'loadstring(game:HttpGet("https://YOUR-HOST/script2.lua"))()'
+        name: "Ruby AZL",
+        game: "Azure Latch",
+        desc: "Ruby Hub's Azure Latch script.",
+        code: 'loadstring(game:HttpGet("https://rubyhub.pages.dev/rubyazl"))()'
     }
 ];
 
